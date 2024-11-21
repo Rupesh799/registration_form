@@ -6,7 +6,7 @@ const Form = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    file:null
+    file: null,
   });
 
   const [errorMsg, setErrorMsg] = useState({});
@@ -23,18 +23,16 @@ const Form = () => {
   const handleOnSubmit = (e) => {
     e.preventDefault();
     let validationerrors = {};
+
     //email validation
     if (!formFields.email.trim()) {
       validationerrors.email = "Email is required";
-    } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-.test(formFields.email)
-    ) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formFields.email)) {
       validationerrors.email = "Email is not valid";
     }
 
     //password validation
-   
+
     if (!formFields.password.trim()) {
       validationerrors.password = "Password is required";
     } else if (formFields.password.length < 6) {
@@ -45,49 +43,56 @@ const Form = () => {
     if (formFields.confirmPassword !== formFields.password) {
       validationerrors.confirmPassword = "Passwords do not match";
     }
-   
+
     setErrorMsg(validationerrors);
     if (
       Object.keys(validationerrors).length === 0 &&
       formFields.email &&
       formFields.password &&
-      formFields.confirmPassword  &&
+      formFields.confirmPassword &&
       formFields.file
     ) {
       console.log(formFields);
       alert("Form submitted successfully");
+      setFormFields({
+        email: "",
+        password: "",
+        confirmPassword: "",
+        file: null,
+      });
+    setFiles([]);
+
+    }
+    else{
+      alert("Please fill all the fields");
     }
     const data = document.querySelectorAll("input");
     data.forEach((item) => {
       item.value = "";
     });
-    setFormFields({
-      email: "",
-      password: "",
-      confirmPassword: "",
-      file: null,
-    });
-    setFiles([])
+    // setFormFields({
+    //   email: "",
+    //   password: "",
+    //   confirmPassword: "",
+    //   file: null,
+    // });
   };
 
   const onDrop = useCallback((acceptedFiles) => {
-        // setFiles(acceptedFiles)
-        // console.log(acceptedFiles);
-        if (acceptedFiles.length > 0) {
-          const file = acceptedFiles[0]; // Get the first file
-          setFiles(acceptedFiles);
-          setFormFields((prev) => ({
-            ...prev,
-            file: file, // Update file in formFields
-          }));
-        }
-        
+   
+    if (acceptedFiles.length > 0) {
+      const file = acceptedFiles[0]; 
+            setFiles(acceptedFiles);
+      setFormFields((prev) => ({
+        ...prev,
+        file: file, // Update file in formFields
+      }));
+    }
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive, } =
-    useDropzone({
-      onDrop
-    });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+  });
 
   return (
     <div>
@@ -101,6 +106,7 @@ const Form = () => {
           <input
             type="email"
             name="email"
+            required
             value={formFields.email}
             onChange={handleFormFields}
             placeholder="example@domain.com"
@@ -139,23 +145,33 @@ const Form = () => {
           )}
         </div>
 
-        <div className="flex flex-col px-3 py-9 text-center border border-dashed rounded-sm cursor-pointer" {...getRootProps()}>
-          <input
-            
-            onChange={handleFormFields}
-            {...getInputProps()}
-          />
-          {
-            isDragActive ? 
-            <p className="text-gray-400">Drop the image here ...</p> :
-            <p className="text-gray-400">Drag and drop your image here or click to select files</p>
-          }
+        <div
+          className="flex flex-col px-3 py-9 text-center border border-dashed rounded-sm cursor-pointer"
+          {...getRootProps()}
+        >
+          <input onChange={handleFormFields} {...getInputProps()} />
+          {isDragActive ? (
+            <p className="text-gray-400">Drop the image here ...</p>
+          ) : (
+            <p className="text-gray-400">
+              Drag and drop your image here or click to select files
+            </p>
+          )}
 
-    {
-        files && files.length > 0 && files.map((file, index)=>{
-            return <img key={index} src={URL.createObjectURL(file)} alt="" width={200} height={200} className=" m-auto"/>
-        })
-    }
+          {files &&
+            files.length > 0 &&
+            files.map((file, index) => {
+              return (
+                <img
+                  key={index}
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  width={200}
+                  height={200}
+                  className=" m-auto"
+                />
+              );
+            })}
 
           {errorMsg.image && <p style={{ color: "red" }}>{errorMsg.image}</p>}
         </div>
